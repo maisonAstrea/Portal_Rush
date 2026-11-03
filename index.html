@@ -85,11 +85,18 @@
 @keyframes menuDive{50%{background-size:auto 125%}100%{background-size:auto 230%;opacity:0}}
 @media(max-width:700px){#landing{background-size:auto 100%}#landing .landing-panel{width:min(78vw,340px);top:42%}#landing .portal-shell{width:min(82vw,50vh)}#landing #enterPortal{min-height:52px;font-size:20px}#landing .menu-secondary{min-height:36px;font-size:12px}}
 @media(max-height:650px){#landing .landing-panel{top:34%;gap:5px}#landing #nickname{height:35px}#landing #enterPortal{min-height:42px;margin-top:2px}#landing .menu-secondary{min-height:30px}}
+
+/* Vidéo d'accueil : garde l'image actuelle en secours tant que la vidéo n'est pas déposée */
+#landing .portal-intro-video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0;pointer-events:none}
+#landing .landing-panel{z-index:5}
+#landing.entering .portal-intro-video{animation:portalVideoDive 1.25s ease-in forwards}
+@keyframes portalVideoDive{to{transform:scale(2.3);opacity:0}}
 </style>
 </head>
 <body>
 <canvas id="c"></canvas>
-<div id="landing" role="dialog" aria-label="Bienvenue dans Portal Rush"><div class="nebula" aria-hidden="true"></div><div class="starfield" aria-hidden="true"></div><div class="planet" aria-hidden="true"></div><div class="island left" aria-hidden="true"></div><div class="island right" aria-hidden="true"></div><div class="ground-glow" aria-hidden="true"></div>
+<div id="landing" role="dialog" aria-label="Bienvenue dans Portal Rush">
+<video class="portal-intro-video" autoplay muted loop playsinline preload="metadata" aria-hidden="true"><source src="portal-intro.mp4" type="video/mp4"></video><div class="nebula" aria-hidden="true"></div><div class="starfield" aria-hidden="true"></div><div class="planet" aria-hidden="true"></div><div class="island left" aria-hidden="true"></div><div class="island right" aria-hidden="true"></div><div class="ground-glow" aria-hidden="true"></div>
  <div class="portal-shell" aria-hidden="true"><div class="portal-vortex"></div><div class="portal-ring"></div></div>
  <form class="landing-panel" id="portalForm"><div class="landing-eyebrow">BIENVENUE DANS LE MULTIVERS</div><h1 class="landing-title">PORTAL RUSH</h1><div class="landing-sub">MONDE OUVERT</div><input id="nickname" maxlength="18" autocomplete="nickname" placeholder="Entre ton blaze" aria-label="Ton pseudo" required><button id="enterPortal" type="submit">▶ JOUER</button><button class="menu-secondary" type="button" id="menuMulti">♟ MULTIJOUEUR · BIENTÔT</button><button class="menu-secondary" type="button" id="menuSettings">⚙ PARAMÈTRES</button><button class="menu-secondary" type="button" id="menuCredits">ⓘ CRÉDITS</button><button class="menu-secondary" type="button" id="menuQuit">⏻ QUITTER</button><p class="landing-hint">4 dimensions · Boss · Armes · Exploration</p></form>
  <div class="landing-foot">UN MONDE. UNE INFINITÉ DE PORTAILS.</div>
