@@ -35,11 +35,36 @@
 @keyframes vortex{to{transform:rotate(360deg)}}@keyframes ring{50%{border-radius:54% 46% 51% 49%;transform:rotate(14deg) scale(1.04)}}@keyframes skyspin{to{transform:rotate(360deg)}}@keyframes portalDive{0%{transform:translate(-50%,-50%) scale(1)}65%{transform:translate(-50%,-50%) scale(2.5)}100%{transform:translate(-50%,-50%) scale(13);opacity:0}}@keyframes fadeaway{to{opacity:0;transform:translateY(20px)}}
 @media(max-height:680px){.portal-shell{width:min(53vh,300px);top:34%}.landing-panel{margin-top:28vh;padding:10px 14px}.landing-title{font-size:27px}.landing-sub{margin-bottom:8px}.landing-hint{margin-top:7px}}
 @media(prefers-reduced-motion:reduce){#landing:before,.portal-vortex,.portal-vortex:after,.portal-ring,.portal-ring:after{animation-duration:25s}}
+
+/* Cinématique d'accueil légère : décor spatial, cascades et énergie */
+#landing{isolation:isolate;background:radial-gradient(ellipse at 50% 66%,#193a48 0%,#0a1435 35%,#1a0b39 66%,#030612 100%)}
+#landing .nebula{position:absolute;inset:-18%;pointer-events:none;opacity:.8;background:radial-gradient(ellipse at 12% 30%,#8a27d255,transparent 36%),radial-gradient(ellipse at 85% 25%,#8e25d866,transparent 40%),radial-gradient(ellipse at 60% 95%,#00a9ee33,transparent 50%);animation:nebulaDrift 17s ease-in-out infinite alternate}
+#landing .starfield{position:absolute;inset:0;pointer-events:none;background-image:radial-gradient(1.5px 1.5px at 10% 20%,#fff,transparent),radial-gradient(2px 2px at 70% 12%,#9af,transparent),radial-gradient(2px 2px at 86% 48%,#fff,transparent),radial-gradient(1px 1px at 32% 38%,#fff,transparent),radial-gradient(1.5px 1.5px at 55% 76%,#bff,transparent),radial-gradient(1px 1px at 15% 80%,#fff,transparent);background-size:340px 260px;animation:starDrift 28s linear infinite}
+#landing .planet{position:absolute;width:clamp(110px,24vw,300px);aspect-ratio:1;top:-10%;left:-5%;border-radius:50%;background:radial-gradient(circle at 72% 32%,#b3dcff,#3a579b 28%,#13214d 57%,#03050e 76%);box-shadow:10px 0 26px #64caff88,0 0 50px #5764ee33;pointer-events:none}
+#landing .island{position:absolute;width:clamp(85px,16vw,220px);height:clamp(110px,22vw,280px);top:17%;pointer-events:none;animation:islandFloat 6s ease-in-out infinite alternate}
+#landing .island.left{left:-2%}#landing .island.right{right:-2%;animation-delay:-3s}
+#landing .island:before{content:"";position:absolute;inset:0;clip-path:polygon(12% 10%,74% 0,100% 22%,75% 46%,62% 76%,42% 100%,29% 62%,0 31%);background:linear-gradient(120deg,#3f637c,#182b48 48%,#060d21);filter:drop-shadow(0 10px 15px #000)}
+#landing .island:after{content:"";position:absolute;top:25%;left:45%;width:10%;height:90%;background:linear-gradient(#71f9ff,#29baff99,transparent);filter:blur(3px);animation:waterfall 2s linear infinite}
+#landing .ground-glow{position:absolute;left:-20%;right:-20%;bottom:-9%;height:30%;pointer-events:none;background:radial-gradient(ellipse at 50% 15%,#66ff7c88 0,#29ff9a24 30%,transparent 70%);transform:perspective(300px) rotateX(55deg);animation:groundPulse 4s ease-in-out infinite}
+#landing .portal-shell{top:42%;width:min(69vw,460px);animation:portalHover 4s ease-in-out infinite alternate}
+#landing .portal-shell:after{content:"";position:absolute;inset:-11%;border:3px solid #90ff8caa;border-radius:48% 52% 54% 46%;box-shadow:0 0 22px #6dff80;animation:vortex 11s linear infinite reverse}
+#landing .landing-panel{margin-top:min(37vh,290px);border-color:#8cffafaa;background:linear-gradient(160deg,#06111ae9,#071426ef);box-shadow:0 18px 65px #000d,0 0 32px #42ff7c33}
+#landing .landing-title{font-style:italic;text-transform:uppercase;transform:skewX(-8deg);color:#f8fff9;text-shadow:0 0 12px #6bff87,0 0 32px #43ff8a}
+#landing .landing-panel:before{content:"";position:absolute;inset:-1px;border-radius:24px;pointer-events:none;border:1px solid #5bff9a44;animation:groundPulse 3s ease-in-out infinite}
+#landing.entering .portal-shell{animation:portalDive 1.25s ease-in forwards}
+@keyframes nebulaDrift{to{transform:translate(4%,-3%) scale(1.07)}}
+@keyframes starDrift{to{background-position:340px 260px}}
+@keyframes islandFloat{to{transform:translateY(18px) rotate(2deg)}}
+@keyframes waterfall{50%{opacity:.5;transform:translateY(8px)}}
+@keyframes groundPulse{50%{opacity:.55}}
+@keyframes portalHover{to{transform:translate(-50%,-53%) scale(1.04)}}
+@media(max-width:600px){#landing .portal-shell{width:min(76vw,350px);top:35%}#landing .landing-panel{margin-top:29vh}#landing .island{top:20%;opacity:.7}}
+@media(prefers-reduced-motion:reduce){#landing .nebula,#landing .starfield,#landing .island,#landing .island:after,#landing .ground-glow,#landing .portal-shell,#landing .portal-shell:after{animation:none}#landing.entering .portal-shell{animation:portalDive 1.25s ease-in forwards}}
 </style>
 </head>
 <body>
 <canvas id="c"></canvas>
-<div id="landing" role="dialog" aria-label="Bienvenue dans Portal Rush">
+<div id="landing" role="dialog" aria-label="Bienvenue dans Portal Rush"><div class="nebula" aria-hidden="true"></div><div class="starfield" aria-hidden="true"></div><div class="planet" aria-hidden="true"></div><div class="island left" aria-hidden="true"></div><div class="island right" aria-hidden="true"></div><div class="ground-glow" aria-hidden="true"></div>
  <div class="portal-shell" aria-hidden="true"><div class="portal-vortex"></div><div class="portal-ring"></div></div>
  <form class="landing-panel" id="portalForm"><div class="landing-eyebrow">BIENVENUE DANS LE MULTIVERS</div><h1 class="landing-title">PORTAL RUSH</h1><div class="landing-sub">MONDE OUVERT</div><input id="nickname" maxlength="18" autocomplete="nickname" placeholder="Entre ton blaze" aria-label="Ton pseudo" required><button id="enterPortal" type="submit">ENTRER DANS LE PORTAIL</button><p class="landing-hint">4 dimensions · Boss · Armes · Exploration</p></form>
  <div class="landing-foot">UN MONDE. UNE INFINITÉ DE PORTAILS.</div>
