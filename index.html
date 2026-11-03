@@ -104,8 +104,43 @@ function dmg(e,n){e.hp-=n;e.fl=.08;if(e.hp<=0&&!e.dead){e.dead=1;boom(e.x,e.y,e.
 if(e.boss){for(let i=0;i<15;i++)orbs.push({x:e.x+R(-60,60),y:e.y+R(-60,60),l:30});p.hp=p.max;say(e.ult?"BOSS ULTIME VAINCU ! +2 PV max":"BOSS VAINCU !");if(e.ult){ub++;p.max+=2;p.hp=p.max;sc+=2000;for(let i=0;i<40;i++)orbs.push({x:e.x+R(-120,120),y:e.y+R(-120,120),l:40,v:5})}pu.push({x:e.x,y:e.y,k:3,l:30},{x:e.x+40,y:e.y,k:0,l:30})}else{if(Math.random()<.3)orbs.push({x:e.x,y:e.y,l:20});if(Math.random()<.035)orbs.push({x:e.x,y:e.y,l:20,hp:1});if(Math.random()<.035)pu.push({x:e.x,y:e.y,k:Math.floor(Math.random()*6),l:15})}}}
 function burst(){if(charge<100||st!="play")return;charge=0;shake=18;beep(90,.6,"sawtooth",.1);rg.push({x:p.x,y:p.y,l:.6,big:1});for(const e of en)if(Math.hypot(e.x-p.x,e.y-p.y)<420)dmg(e,8)}
 function dash(){if(st=="play"&&p.dash<-.6){p.dash=.2;p.inv=.3;beep(300,.15,"sine",.05)}}
-for(const [id,f] of [["burst",burst],["dash",dash],["pass",()=>{ov=!ov}],["wpn",()=>{for(let i=1;i<7;i++){const n=(wp+i)%7;if(own[n]){wp=n;break}}say(WP[wp].nm)}]]){const b=document.getElementById(id);b.onpointerdown=e=>{e.stopPropagation();f()}}
-onpointermove=e=>{px=e.clientX;py=e.clientY};onpointerdown=e=>{if(bsh(e)||buy(e)){px=null;hd=0;return}hd=1;px=e.clientX;py=e.clientY;if(st!="play"&&t>.4){t=0;mk()}};onpointerup=e=>{hd=0;if(e.pointerType=="touch")px=null};
+// Commandes tactiles : joystick relatif au doigt, compatible multi-touch.
+let touchMoveId=null, touchStartX=0, touchStartY=0;
+for(const [id,f] of [["burst",burst],["dash",dash],["pass",()=>{ov=!ov}],["wpn",()=>{for(let i=1;i<7;i++){const n=(wp+i)%7;if(own[n]){wp=n;break}}say(WP[wp].nm)}]]){
+ const btn=document.getElementById(id);
+ btn.style.touchAction="none";
+ btn.addEventListener("pointerdown",e=>{e.preventDefault();e.stopPropagation();f()});
+ btn.addEventListener("pointermove",e=>e.stopPropagation());
+ btn.addEventListener("pointerup",e=>e.stopPropagation());
+ btn.addEventListener("pointercancel",e=>e.stopPropagation());
+}
+c.style.touchAction="none";
+c.addEventListener("pointerdown",e=>{
+ e.preventDefault();
+ if(e.pointerType==="touch"&&touchMoveId!==null)return;
+ if(bsh(e)||buy(e)){hd=0;return}
+ hd=1;
+ if(st!=="play"&&t>.4){t=0;mk()}
+ if(e.pointerType==="touch"){
+   touchMoveId=e.pointerId;touchStartX=e.clientX;touchStartY=e.clientY;
+   px=W/2;py=H/2;
+   c.setPointerCapture(e.pointerId);
+ }else{px=e.clientX;py=e.clientY}
+});
+c.addEventListener("pointermove",e=>{
+ if(e.pointerType==="touch"){
+   if(e.pointerId!==touchMoveId)return;
+   px=W/2+(e.clientX-touchStartX)*2;
+   py=H/2+(e.clientY-touchStartY)*2;
+ }else{px=e.clientX;py=e.clientY}
+});
+function stopTouch(e){
+ if(e.pointerType==="touch"&&e.pointerId===touchMoveId){
+   touchMoveId=null;px=null;py=null;hd=0;
+ }else if(e.pointerType!=="touch"){hd=0}
+}
+c.addEventListener("pointerup",stopTouch);
+c.addEventListener("pointercancel",stopTouch);
 onkeydown=e=>{keys[e.key.toLowerCase()]=1;if(e.code=="Space"){e.preventDefault();st=="play"?burst():(t=0,mk())}if(e.key=="p"||e.key=="Escape")pz=!pz;if(e.key=="m")mu=!mu;if(e.key=="Shift")dash();if("1234567".includes(e.key)&&own[+e.key-1])wp=+e.key-1;if(e.key=="u"&&sau)ufo=1-ufo;if(e.key=="b")ov=!ov;if(e.key=="v"&&hasCar)car=1-car};onkeyup=e=>keys[e.key.toLowerCase()]=0;
 function spawnEn(){const a=R(0,6.28),d=R(650,900),X=p.x+Math.cos(a)*d,Y=p.y+Math.sin(a)*d;if(X<50||Y<50||X>WS-50||Y>WS-50)return;const b=bi(X,Y),r=Math.random(),k=r<.12+p.lv*.01?2:r<.45?1:0;
 en.push({x:X,y:Y,k,rn:k<2&&Math.random()<.2,hp:Math.ceil((k==2?6:k?3:2)*(1+p.lv*.18)),r:k==2?34:k?18:22,sp:k==2?50:k?125:75,ph:R(0,6),h:(HU[b]+R(-30,30)+360)%360,wd:R(0,6.28)});rg.push({x:X,y:Y,l:.5})}
