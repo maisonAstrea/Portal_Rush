@@ -159,7 +159,7 @@ if(p.rt>3&&p.shield<p.maxShield)p.shield=Math.min(p.maxShield,p.shield+1.5*d);
 if(p.rt>5&&p.shield>=p.maxShield&&p.hp<p.max)p.hp=Math.min(p.max,p.hp+0.5*d);
 shake*=.9;
 if(bots.length<5&&Math.random()<0.003){
-    const a=R(0,6.28),dist=R(800,1200);
+    const a=R(0,6.28),dist=R(420,650);
     bots.push({x:Math.max(50,Math.min(WS-50,p.x+Math.cos(a)*dist)),y:Math.max(50,Math.min(WS-50,p.y+Math.sin(a)*dist)),hp:15+p.lv*3,max:15+p.lv*3,name:B_NAMES[Math.floor(Math.random()*B_NAMES.length)],skin:Math.floor(Math.random()*SK.length),a:0,fire:0,dead:0});
 }
 function damageBot(bot,amount){if(bot.dead)return;bot.hp-=amount;boom(bot.x,bot.y,5,0,.5);if(bot.hp<=0){bot.dead=1;kills++;sc+=800;for(let i=0;i<15;i++)orbs.push({x:bot.x+R(-40,40),y:bot.y+R(-40,40),l:25,v:3});say("Joueur éliminé : "+bot.name)}}
@@ -190,7 +190,7 @@ for(const bot of bots){
 }
 bots=bots.filter(b=>!b.dead);
 mt-=d;if(mt<=0){mt=.42;if(AC){const sc=[0,3,7,10,12,10,7,3],b=110*Math.pow(2,bi(p.x,p.y)/4+(nt()>.3?-1:0));beep(b*Math.pow(2,sc[Math.floor(t/.42)%8]/12),.5,"triangle",.012)}}sp-=d;if(sp<=0&&en.length<22+Math.floor(nt()*10)){spawnEn();sp=.9-nt()*.3}
-let n=null,nd=520;for(const e of en){if(e.dead)continue;const z=Math.hypot(e.x-p.x,e.y-p.y);if(z<nd){nd=z;n=e}}for(const bot of bots){if(bot.dead)continue;const z=Math.hypot(bot.x-p.x,bot.y-p.y);if(z<nd){nd=z;n=bot}}
+let n=null,nd=520;for(const bot of bots){if(bot.dead)continue;const z=Math.hypot(bot.x-p.x,bot.y-p.y);if(z<650&&z<nd+180){nd=z-180;n=bot}}if(!n){for(const e of en){if(e.dead)continue;const z=Math.hypot(e.x-p.x,e.y-p.y);if(z<nd){nd=z;n=e}}}
 if(n){p.a=Math.atan2(n.y-p.y,n.x-p.x);fire-=d;if(fire<=0){const w_=WP[wp];fire=Math.max(.05,w_.f-p.lv*.006)*(ufo?.7:1)*(fxT[2]>0?.5:1);const nn=w_.n+(fxT[0]>0?2:0),ss=w_.s||.14;for(let i=0;i<nn;i++){const a=p.a+(i-(nn-1)/2)*ss;if(w_.hs)beam(p.x+Math.cos(a)*30,p.y+Math.sin(a)*30,a,w_.hs,w_.d+Math.floor(p.lv/3),w_.bw,w_.bc);else bl.push({x:p.x,y:p.y,vx:Math.cos(a)*w_.v,vy:Math.sin(a)*w_.v,l:w_.l,dm:w_.d+Math.floor(p.lv/3),pr:w_.pr,sp:w_.sp,bm:w_.bm,bc:w_.bc})}beep(620,.05,"square",.015)}}
 for(const b of bl){b.x+=b.vx*d;b.y+=b.vy*d;b.l-=d}bl=bl.filter(b=>b.l>0);
 for(const b of eb){b.x+=b.vx*d;b.y+=b.vy*d;b.l-=d;if(b.l>0&&p.inv<=0&&Math.hypot(b.x-p.x,b.y-p.y)<16){b.l=0;hit(b.dmg||1)}}eb=eb.filter(b=>b.l>0);
