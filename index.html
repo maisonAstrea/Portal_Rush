@@ -31,7 +31,7 @@ let W,H;
 // État initial du moteur : sans ces variables, le rendu s'arrête avant le menu.
 let p=null, st="menu", t=0, shake=0, px=null, py=null, cx=0, cy=0;
 let sp=0, bl=[], eb=[], en=[], pt=[], rg=[], orbs=[], po=[], ch=[], bo=[];
-let kills=0, charge=0, got=0, q={t:"k",n:0,h:0,s:"Élimine"}, toast={s:"",l:0};
+let kills=0, charge=0, got=0, fire=0, pz=0, q={t:"k",n:0,h:0,s:"Élimine"}, toast={s:"",l:0};
 const keys=Object.create(null);
 function rs(){const D=devicePixelRatio||1;W=innerWidth;H=innerHeight;c.width=W*D;c.height=H*D;x.setTransform(D,0,0,D,0,0)}
 rs(); onresize=rs;
