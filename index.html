@@ -91,6 +91,16 @@
 #landing .landing-panel{z-index:5}
 #landing.entering .portal-intro-video{animation:portalVideoDive 1.25s ease-in forwards}
 @keyframes portalVideoDive{to{transform:scale(2.3);opacity:0}}
+
+/* Menu interactif superposé à la cinématique, sans doublon de logo */
+#landing .portal-shell{display:none!important}
+#landing .landing-panel{top:43%;gap:8px;width:min(42vw,420px)}
+#landing #nickname{background:rgba(2,17,19,.84);backdrop-filter:blur(8px)}
+#landing #enterPortal,#landing .menu-secondary{backdrop-filter:blur(8px)}
+#landing #menuQuit{border-color:#ff596b;background:rgba(35,8,18,.9);box-shadow:0 0 12px #ff334433}
+#landing #menuQuit:hover{background:#632031}
+@media(max-width:700px){#landing .landing-panel{top:38%;width:min(82vw,350px)}}
+@media(max-height:650px){#landing .landing-panel{top:30%}}
 </style>
 </head>
 <body>
