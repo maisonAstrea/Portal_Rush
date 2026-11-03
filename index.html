@@ -60,13 +60,38 @@
 @keyframes portalHover{to{transform:translate(-50%,-53%) scale(1.04)}}
 @media(max-width:600px){#landing .portal-shell{width:min(76vw,350px);top:35%}#landing .landing-panel{margin-top:29vh}#landing .island{top:20%;opacity:.7}}
 @media(prefers-reduced-motion:reduce){#landing .nebula,#landing .starfield,#landing .island,#landing .island:after,#landing .ground-glow,#landing .portal-shell,#landing .portal-shell:after{animation:none}#landing.entering .portal-shell{animation:portalDive 1.25s ease-in forwards}}
+
+/* Menu cinématique : illustration officielle déposée dans le dépôt */
+#landing{background:#070817 url("Menu%20ne%CC%81on%20Portal%20Rush%20intergalactique.png") center center/cover no-repeat;isolation:isolate}
+#landing:before{display:none}
+#landing .nebula,#landing .starfield,#landing .planet,#landing .island,#landing .ground-glow{display:none}
+#landing:after{content:"";position:absolute;inset:0;pointer-events:none;background:radial-gradient(ellipse 23% 35% at 50% 47%,transparent 30%,#06121b18 100%);animation:menuBreath 4s ease-in-out infinite alternate}
+#landing .portal-shell{top:45%;width:min(52vw,58vh,680px);opacity:.32;mix-blend-mode:screen;filter:drop-shadow(0 0 32px #5fff21);animation:portalHover 4s ease-in-out infinite alternate}
+#landing .portal-vortex{inset:9%;background:repeating-conic-gradient(from 0deg,#1cff5000 0deg,#baff3677 13deg,#12ff3000 31deg,#58ff7a55 46deg,#11ff4500 62deg);box-shadow:none;animation:vortex 5s linear infinite;mask-image:radial-gradient(circle,transparent 0 27%,#000 55%,transparent 74%)}
+#landing .portal-vortex:after{opacity:.3}
+#landing .portal-ring{border:3px solid #6aff3377;box-shadow:0 0 26px #54ff30,inset 0 0 24px #66ff18;opacity:.55}
+#landing .landing-panel{position:absolute;top:42%;left:50%;transform:translateX(-50%);margin:0;padding:0;width:min(42vw,420px);background:transparent;border:0;box-shadow:none;backdrop-filter:none;display:flex;flex-direction:column;align-items:stretch;gap:9px;z-index:5}
+#landing .landing-eyebrow,#landing .landing-title,#landing .landing-sub,#landing .landing-hint,#landing .landing-foot{display:none}
+#landing #nickname{height:49px;background:#041a20e8;border:2px solid #65ff80b0;border-radius:9px;color:#fff;box-shadow:0 0 16px #23ff4944;font-size:16px}
+#landing #enterPortal{margin:8px 0 0;min-height:60px;border:2px solid #84ff50;background:linear-gradient(110deg,#031a0cee,#063e1de8);color:white;border-radius:12px;box-shadow:0 0 22px #44ff3c99,inset 0 0 20px #26ff5a33;font-size:24px;text-shadow:0 0 12px #66ff6a;transition:transform .18s,box-shadow .18s}
+#landing #enterPortal:hover{transform:scale(1.035);box-shadow:0 0 35px #70ff3c}
+#landing .menu-secondary{display:flex;align-items:center;justify-content:center;min-height:39px;border:1px solid #49ff65a8;background:#041b1de8;color:#fff;border-radius:8px;box-shadow:0 0 9px #44ff3844;cursor:pointer;font:700 14px system-ui;letter-spacing:.4px}
+#landing .menu-secondary:hover{background:#125034}
+#landing .menu-secondary:disabled{opacity:.65;cursor:not-allowed}
+#landing.entering{animation:menuDive 1.25s ease-in forwards}
+#landing.entering .portal-shell{animation:portalDive 1.25s ease-in forwards}
+#landing.entering .landing-panel{animation:fadeaway .35s ease-in forwards}
+@keyframes menuBreath{to{filter:brightness(1.15)}}
+@keyframes menuDive{50%{background-size:auto 125%}100%{background-size:auto 230%;opacity:0}}
+@media(max-width:700px){#landing{background-size:auto 100%}#landing .landing-panel{width:min(78vw,340px);top:42%}#landing .portal-shell{width:min(82vw,50vh)}#landing #enterPortal{min-height:52px;font-size:20px}#landing .menu-secondary{min-height:36px;font-size:12px}}
+@media(max-height:650px){#landing .landing-panel{top:34%;gap:5px}#landing #nickname{height:35px}#landing #enterPortal{min-height:42px;margin-top:2px}#landing .menu-secondary{min-height:30px}}
 </style>
 </head>
 <body>
 <canvas id="c"></canvas>
 <div id="landing" role="dialog" aria-label="Bienvenue dans Portal Rush"><div class="nebula" aria-hidden="true"></div><div class="starfield" aria-hidden="true"></div><div class="planet" aria-hidden="true"></div><div class="island left" aria-hidden="true"></div><div class="island right" aria-hidden="true"></div><div class="ground-glow" aria-hidden="true"></div>
  <div class="portal-shell" aria-hidden="true"><div class="portal-vortex"></div><div class="portal-ring"></div></div>
- <form class="landing-panel" id="portalForm"><div class="landing-eyebrow">BIENVENUE DANS LE MULTIVERS</div><h1 class="landing-title">PORTAL RUSH</h1><div class="landing-sub">MONDE OUVERT</div><input id="nickname" maxlength="18" autocomplete="nickname" placeholder="Entre ton blaze" aria-label="Ton pseudo" required><button id="enterPortal" type="submit">ENTRER DANS LE PORTAIL</button><p class="landing-hint">4 dimensions · Boss · Armes · Exploration</p></form>
+ <form class="landing-panel" id="portalForm"><div class="landing-eyebrow">BIENVENUE DANS LE MULTIVERS</div><h1 class="landing-title">PORTAL RUSH</h1><div class="landing-sub">MONDE OUVERT</div><input id="nickname" maxlength="18" autocomplete="nickname" placeholder="Entre ton blaze" aria-label="Ton pseudo" required><button id="enterPortal" type="submit">▶ JOUER</button><button class="menu-secondary" type="button" id="menuMulti">♟ MULTIJOUEUR · BIENTÔT</button><button class="menu-secondary" type="button" id="menuSettings">⚙ PARAMÈTRES</button><button class="menu-secondary" type="button" id="menuCredits">ⓘ CRÉDITS</button><button class="menu-secondary" type="button" id="menuQuit">⏻ QUITTER</button><p class="landing-hint">4 dimensions · Boss · Armes · Exploration</p></form>
  <div class="landing-foot">UN MONDE. UNE INFINITÉ DE PORTAILS.</div>
 </div>
 
@@ -76,6 +101,7 @@
 <button class="b" id="burst">BURST</button>
 <script>
 const landing=document.getElementById("landing"),portalForm=document.getElementById("portalForm"),nicknameInput=document.getElementById("nickname");let playerName="Explorateur",portalStarting=false;try{nicknameInput.value=localStorage.getItem("pr_nickname")||""}catch(e){}portalForm.addEventListener("submit",e=>{e.preventDefault();if(portalStarting)return;playerName=nicknameInput.value.trim().slice(0,18)||"Explorateur";try{localStorage.setItem("pr_nickname",playerName)}catch(e){}portalStarting=true;document.getElementById("enterPortal").disabled=true;landing.classList.add("entering");setTimeout(()=>{t=0;mk();landing.classList.add("hidden");portalStarting=false},1250)});
+document.getElementById("menuMulti").addEventListener("click",()=>alert("Le vrai multijoueur est en préparation. Pour le moment, les adversaires sont des bots."));document.getElementById("menuSettings").addEventListener("click",()=>alert("Paramètres : commandes clavier et boutons tactiles disponibles en jeu. D’autres options arrivent."));document.getElementById("menuCredits").addEventListener("click",()=>alert("PORTAL RUSH — Monde Ouvert. Un jeu indépendant en développement."));document.getElementById("menuQuit").addEventListener("click",()=>alert("Tu peux fermer cet onglet pour quitter le jeu."));
 const c=document.getElementById("c"), x=c.getContext("2d"), WS=6000, HU=[135,285,28,195], NM=["Dimension Toxique","Forêt Cristalline","Désert Zarbi","Glacier Néon"];
 let W,H;
 // État initial du moteur : sans ces variables, le rendu s'arrête avant le menu.
