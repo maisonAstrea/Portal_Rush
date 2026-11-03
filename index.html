@@ -17,15 +17,40 @@
     #wpn { bottom: calc(190px + env(safe-area-inset-bottom, 0px)); border-color: #fc3; color: #fc3; background: rgba(42, 30, 11, 0.6); }
     #burst.r { opacity: 1; background: rgba(11, 42, 26, 0.9); box-shadow: 0 0 25px var(--g), inset 0 0 12px var(--g); animation: pulseCharge 1.5s infinite; }
     @keyframes pulseCharge { 0% { box-shadow: 0 0 15px var(--g), inset 0 0 5px var(--g); } 50% { box-shadow: 0 0 35px var(--g), inset 0 0 15px var(--g); } 100% { box-shadow: 0 0 15px var(--g), inset 0 0 5px var(--g); } }
+
+/* Écran d'accueil Portal Rush */
+#landing{position:fixed;inset:0;z-index:50;display:flex;align-items:center;justify-content:center;overflow:hidden;background:radial-gradient(ellipse at 50% 48%,#172b35 0%,#090b1c 48%,#03050d 100%);color:#fff;touch-action:auto}
+#landing.hidden{display:none}#landing:before{content:"";position:absolute;inset:-30%;background:repeating-conic-gradient(from 10deg at 50% 50%,#39ff8a12 0 9deg,transparent 9deg 23deg);animation:skyspin 32s linear infinite;pointer-events:none}
+.portal-shell{position:absolute;width:min(78vw,410px);aspect-ratio:1;border-radius:50%;top:45%;left:50%;transform:translate(-50%,-50%);filter:drop-shadow(0 0 35px #39ff8a88);pointer-events:none}
+.portal-vortex{position:absolute;inset:7%;border-radius:50%;background:repeating-conic-gradient(from 0deg,#123e38 0deg,#2fff99 19deg,#073a44 34deg,#9cfb76 51deg,#0a1732 72deg,#29edb3 95deg);animation:vortex 7s linear infinite;box-shadow:inset 0 0 45px #031719,0 0 38px #39ff8a;mask-image:radial-gradient(circle,#000 0 62%,transparent 71%)}
+.portal-vortex:after{content:"";position:absolute;inset:16%;border-radius:50%;background:repeating-conic-gradient(from 30deg,#0b142d 0 24deg,#29edb3 35deg,#b5ff71 53deg,#061526 74deg);animation:vortex 4s linear infinite reverse;box-shadow:inset 0 0 35px #0009}
+.portal-ring{position:absolute;inset:0;border:9px solid #4fffaa;border-radius:48% 52% 47% 53%;box-shadow:0 0 18px #c0ff7a,inset 0 0 30px #29ff98;animation:ring 5s ease-in-out infinite;transform:rotate(-12deg)}
+.portal-ring:after{content:"";position:absolute;inset:7px;border:3px dashed #eaff9a;border-radius:52% 48% 53% 47%;animation:vortex 9s linear infinite}
+.landing-panel{position:relative;z-index:2;width:min(86vw,390px);margin-top:min(39vh,320px);padding:16px 18px 22px;text-align:center;border:1px solid #8effbc66;border-radius:24px;background:#07121de8;box-shadow:0 18px 70px #000c,0 0 35px #39ff8a22;backdrop-filter:blur(15px)}
+.landing-eyebrow{font:700 10px system-ui;letter-spacing:4px;color:#9cfbbd}.landing-title{font:900 clamp(29px,7vw,46px) system-ui;letter-spacing:2px;line-height:1;margin:8px 0 3px;text-shadow:0 0 18px #39ff8a88}.landing-sub{font:600 12px system-ui;letter-spacing:4px;color:#b4fcd2;margin-bottom:14px}
+#nickname{box-sizing:border-box;width:100%;border:1px solid #5de9ab99;border-radius:12px;padding:13px;background:#030c16;color:#fff;font:600 16px system-ui;outline:none;text-align:center;touch-action:auto;user-select:text;-webkit-user-select:text}#nickname:focus{border-color:#b6ff8c;box-shadow:0 0 0 3px #39ff8a24}
+#enterPortal{width:100%;margin-top:10px;padding:13px;border:0;border-radius:12px;background:linear-gradient(115deg,#b6ff80,#35f6b2);color:#08241e;font:900 15px system-ui;letter-spacing:1px;cursor:pointer;touch-action:manipulation}#enterPortal:disabled{opacity:.6}
+.landing-hint{font:11px system-ui;color:#c5d8d1;margin:12px 0 0}.landing-foot{position:absolute;bottom:12px;left:0;right:0;text-align:center;color:#b1eac4;font:10px system-ui;letter-spacing:2px}
+#landing.entering .portal-shell{animation:portalDive 1.25s ease-in forwards}#landing.entering .landing-panel,#landing.entering .landing-foot{animation:fadeaway .4s ease-in forwards}
+@keyframes vortex{to{transform:rotate(360deg)}}@keyframes ring{50%{border-radius:54% 46% 51% 49%;transform:rotate(14deg) scale(1.04)}}@keyframes skyspin{to{transform:rotate(360deg)}}@keyframes portalDive{0%{transform:translate(-50%,-50%) scale(1)}65%{transform:translate(-50%,-50%) scale(2.5)}100%{transform:translate(-50%,-50%) scale(13);opacity:0}}@keyframes fadeaway{to{opacity:0;transform:translateY(20px)}}
+@media(max-height:680px){.portal-shell{width:min(53vh,300px);top:34%}.landing-panel{margin-top:28vh;padding:10px 14px}.landing-title{font-size:27px}.landing-sub{margin-bottom:8px}.landing-hint{margin-top:7px}}
+@media(prefers-reduced-motion:reduce){#landing:before,.portal-vortex,.portal-vortex:after,.portal-ring,.portal-ring:after{animation-duration:25s}}
 </style>
 </head>
 <body>
 <canvas id="c"></canvas>
+<div id="landing" role="dialog" aria-label="Bienvenue dans Portal Rush">
+ <div class="portal-shell" aria-hidden="true"><div class="portal-vortex"></div><div class="portal-ring"></div></div>
+ <form class="landing-panel" id="portalForm"><div class="landing-eyebrow">BIENVENUE DANS LE MULTIVERS</div><h1 class="landing-title">PORTAL RUSH</h1><div class="landing-sub">MONDE OUVERT</div><input id="nickname" maxlength="18" autocomplete="nickname" placeholder="Entre ton blaze" aria-label="Ton pseudo" required><button id="enterPortal" type="submit">ENTRER DANS LE PORTAIL</button><p class="landing-hint">4 dimensions · Boss · Armes · Exploration</p></form>
+ <div class="landing-foot">UN MONDE. UNE INFINITÉ DE PORTAILS.</div>
+</div>
+
 <button class="b" id="pass">PASS</button>
 <button class="b" id="wpn">ARME</button>
 <button class="b" id="dash">DASH</button>
 <button class="b" id="burst">BURST</button>
 <script>
+const landing=document.getElementById("landing"),portalForm=document.getElementById("portalForm"),nicknameInput=document.getElementById("nickname");let playerName="Explorateur",portalStarting=false;try{nicknameInput.value=localStorage.getItem("pr_nickname")||""}catch(e){}portalForm.addEventListener("submit",e=>{e.preventDefault();if(portalStarting)return;playerName=nicknameInput.value.trim().slice(0,18)||"Explorateur";try{localStorage.setItem("pr_nickname",playerName)}catch(e){}portalStarting=true;document.getElementById("enterPortal").disabled=true;landing.classList.add("entering");setTimeout(()=>{t=0;mk();landing.classList.add("hidden");portalStarting=false},1250)});
 const c=document.getElementById("c"), x=c.getContext("2d"), WS=6000, HU=[135,285,28,195], NM=["Dimension Toxique","Forêt Cristalline","Désert Zarbi","Glacier Néon"];
 let W,H;
 // État initial du moteur : sans ces variables, le rendu s'arrête avant le menu.
@@ -125,7 +150,7 @@ c.addEventListener("pointerdown",e=>{
  if(e.pointerType==="touch"&&touchMoveId!==null)return;
  if(bsh(e)||buy(e)){hd=0;return}
  hd=1;
- if(st!=="play"&&t>.4){t=0;mk()}
+ if(st!=="play"){if(st==="dead"&&t>.4){t=0;mk()}return}
  if(e.pointerType==="touch"){
    touchMoveId=e.pointerId;touchStartX=e.clientX;touchStartY=e.clientY;
    px=W/2;py=H/2;
@@ -146,7 +171,7 @@ function stopTouch(e){
 }
 c.addEventListener("pointerup",stopTouch);
 c.addEventListener("pointercancel",stopTouch);
-onkeydown=e=>{keys[e.key.toLowerCase()]=1;if(e.code=="Space"){e.preventDefault();st=="play"?burst():(t=0,mk())}if(e.key=="p"||e.key=="Escape")pz=!pz;if(e.key=="m")mu=!mu;if(e.key=="Shift")dash();if("1234567".includes(e.key)&&own[+e.key-1])wp=+e.key-1;if(e.key=="u"&&sau)ufo=1-ufo;if(e.key=="b")ov=!ov;if(e.key=="v"&&hasCar)car=1-car};onkeyup=e=>keys[e.key.toLowerCase()]=0;
+onkeydown=e=>{keys[e.key.toLowerCase()]=1;if(e.code=="Space"){e.preventDefault();st=="play"?burst():null}if(e.key=="p"||e.key=="Escape")pz=!pz;if(e.key=="m")mu=!mu;if(e.key=="Shift")dash();if("1234567".includes(e.key)&&own[+e.key-1])wp=+e.key-1;if(e.key=="u"&&sau)ufo=1-ufo;if(e.key=="b")ov=!ov;if(e.key=="v"&&hasCar)car=1-car};onkeyup=e=>keys[e.key.toLowerCase()]=0;
 function spawnEn(){const a=R(0,6.28),d=R(650,900),X=p.x+Math.cos(a)*d,Y=p.y+Math.sin(a)*d;if(X<50||Y<50||X>WS-50||Y>WS-50)return;const b=bi(X,Y),r=Math.random(),k=r<.12+p.lv*.01?2:r<.45?1:0;
 en.push({x:X,y:Y,k,rn:k<2&&Math.random()<.2,hp:Math.ceil((k==2?6:k?3:2)*(1+p.lv*.18)),r:k==2?34:k?18:22,sp:k==2?50:k?125:75,ph:R(0,6),h:(HU[b]+R(-30,30)+360)%360,wd:R(0,6.28)});rg.push({x:X,y:Y,l:.5})}
 function upd(d){if(pz||ov)return;t+=d;if(st!="play")return;
@@ -233,7 +258,7 @@ const T=100,i0=Math.floor(cx/T),j0=Math.floor(cy/T);
 for(let i=i0;i<=i0+W/T+1;i++)for(let j=j0;j<=j0+H/T+1;j++){if(i<0||j<0||i>=WS/T||j>=WS/T)continue;x.fillStyle=`hsl(${HU[bi(i*T+50,j*T+50)]},42%,${10+h2(i,j)*6}%)`;x.fillRect(i*T,j*T,T+1,T+1)}
 x.strokeStyle="#39ff8a";x.lineWidth=6;x.strokeRect(0,0,WS,WS);
 for(let i=Math.floor(cx/150)-1;i<=(cx+W)/150+1;i++)for(let j=Math.floor(cy/150)-1;j<=(cy+H)/150+1;j++)decor(i,j);
-if(st=="menu"){x.restore();menu();return}
+if(st=="menu"){x.restore();return}
 for(const r of rg){const k=Math.min(1,Math.max(0,1-r.l/(r.big?.6:.5))),rad=r.big?k*420:12+30*(1-k*.3);x.strokeStyle=`rgba(57,255,138,${1-k})`;x.lineWidth=r.big?6:4;x.beginPath();x.arc(r.x,r.y,rad,0,6.3);x.stroke()}
 for(const o of po){x.save();x.translate(o.x,o.y);x.shadowColor="#39ff8a";x.shadowBlur=26;for(let i=0;i<4;i++){x.strokeStyle=`rgba(${100+i*50},255,${160+i*20},.9)`;x.lineWidth=5;x.beginPath();x.ellipse(0,0,36-i*7,36-i*7,t*(i%2?2:-2),0,4.5+i);x.stroke()}x.restore()}
 for(const o of ch){x.fillStyle=o.o?"#553":"#fc3";x.fillRect(o.x-14,o.y-10,28,20);x.fillStyle="#0006";x.fillRect(o.x-14,o.y-2,28,4)}
@@ -251,7 +276,7 @@ if(st=="dead"){x.fillStyle="#000a";x.fillRect(0,0,W,H);x.textAlign="center";x.fi
 function menu(){x.fillStyle="#000a";x.fillRect(0,0,W,H);x.textAlign="center";x.shadowColor="#39ff8a";x.shadowBlur=24;x.fillStyle="#39ff8a";x.font=`900 ${Math.min(64,W/9)}px "Trebuchet MS",system-ui`;x.fillText("PORTAL RUSH",W/2,H/2-70);x.font=`700 ${Math.min(26,W/16)}px "Trebuchet MS",system-ui`;x.fillText("MONDE OUVERT",W/2,H/2-35);x.shadowBlur=0;x.fillStyle="#e8ffe8";x.font=`${Math.min(18,W/22)}px system-ui`;
 ["Explore 4 dimensions, ouvre les coffres, utilise les portails","Souris / doigt / WASD : bouger · Shift : dash · Espace : burst","Marchands : armes, soins, hoverboard (V) · armes 1-2-3 · P pause · M son · U soucoupe · B pass · boss ultimes selon ton score","Touche / clique pour jouer"].forEach((s,i)=>x.fillText(s,W/2,H/2+i*28))}
 function hud(){x.textAlign="left";x.font="700 16px system-ui";x.shadowColor="#39ff8a";x.shadowBlur=8;x.fillStyle="#e8ffe8";const y0=26+(window.visualViewport?0:0);
-x.fillStyle="#e8ffe8";x.fillText("Niv "+p.lv,14,y0-4);x.shadowBlur=0;
+x.fillStyle="#e8ffe8";x.fillText(playerName+" · Niv "+p.lv,14,y0-4);x.shadowBlur=0;
 x.fillStyle="#0008";x.fillRect(14,y0+2,160,8);x.fillStyle="#0cf";x.fillRect(14,y0+2,160*(p.shield/Math.max(1,p.maxShield)),8);
 x.fillStyle="#0008";x.fillRect(14,y0+12,160,8);x.fillStyle="#f33";x.fillRect(14,y0+12,160*(p.hp/Math.max(1,p.max)),8);
 x.fillStyle="#0008";x.fillRect(14,y0+22,160,4);x.fillStyle="#9fe8ff";x.fillRect(14,y0+22,160*p.xp/(50+p.lv*45),4);
