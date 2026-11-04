@@ -16,10 +16,11 @@
 <div id="world" style="position:fixed;right:14px;top:14px;color:#d9ffe8;background:#07140fcc;padding:10px 14px;border:1px solid #39ff8a77;border-radius:12px;z-index:2">Dimension : <strong id="worldName">Portail Central</strong><br><small>Approche le portail et appuie sur E</small></div>
 <div id="msg"></div>
 <script type="importmap">
-{ "imports": { "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js" } }
+{ "imports": { "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js", "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/" } }
 </script>
 <script type="module">
 import * as THREE from "three";
+import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 
 // ---------- Renderer, scène, caméra ----------
 const renderer = new THREE.WebGLRenderer({ antialias: true });
@@ -92,6 +93,59 @@ hair.position.y = 2.3;
 hero.add(body, head, hair);
 scene.add(hero);
 
+// Charge des modèles GLB/GLTF quand leurs chemins sont configurés.
+// En cas d'absence ou d'erreur, le prototype reste jouable avec ses formes 3D.
+const assetLoader = new GLTFLoader();
+const mixers = [];
+const loadedScenery = [];
+async function readAssetConfig() {
+  try {
+    const response = await fetch("./assets.json", { cache: "no-cache" });
+    if (!response.ok) return;
+    const config = await response.json();
+    if (config.character && config.character.path) {
+      assetLoader.load(config.character.path, gltf => {
+        const model = gltf.scene;
+        const scale = Number(config.character.scale) || 1;
+        model.scale.setScalar(scale);
+        model.position.y = Number(config.character.yOffset) || 0;
+        hero.add(model);
+        body.visible = head.visible = hair.visible = false;
+        if (gltf.animations.length) {
+          const mixer = new THREE.AnimationMixer(model);
+          const clips = gltf.animations;
+          const idle = clips.find(c => /idle|stand/i.test(c.name)) || clips[0];
+          const walk = clips.find(c => /walk|run/i.test(c.name));
+          const idleAction = mixer.clipAction(idle);
+          idleAction.play();
+          const walkAction = walk && walk !== idle ? mixer.clipAction(walk) : null;
+          if (walkAction) walkAction.play();
+          mixers.push({ mixer, idleAction, walkAction });
+        }
+      }, undefined, error => console.warn("Personnage 3D non chargé :", error));
+    }
+    if (Array.isArray(config.scenery)) {
+      for (const item of config.scenery) {
+        if (!item || !item.path) continue;
+        assetLoader.load(item.path, gltf => {
+          const model = gltf.scene;
+          model.position.set(...(item.position || [0, 0, 0]));
+          model.rotation.y = Number(item.rotationY) || 0;
+          model.scale.setScalar(Number(item.scale) || 1);
+          scene.add(model);
+          loadedScenery.push(model);
+          if (gltf.animations.length) {
+            const mixer = new THREE.AnimationMixer(model);
+            mixer.clipAction(gltf.animations[0]).play();
+            mixers.push({ mixer });
+          }
+        }, undefined, error => console.warn("Décor 3D non chargé :", item.path, error));
+      }
+    }
+  } catch (error) { console.warn("Configuration 3D indisponible :", error); }
+}
+readAssetConfig();
+
 // ---------- Contrôles ----------
 const keys = {};
 let nearPortal = false, dimensionIndex = -1;
@@ -158,6 +212,16 @@ function update(dt) {
   camTarget.copy(hero.position).add(camOffset);
   camera.position.lerp(camTarget, 1 - Math.pow(0.001, dt));
   camera.lookAt(hero.position.x, hero.position.y + 1.5, hero.position.z);
+
+  // Animations des modèles importés (si présents).
+  for (const entry of mixers) {
+    entry.mixer.update(dt);
+    if (entry.walkAction) {
+      const moving = len > 0;
+      entry.walkAction.setEffectiveWeight(moving ? 1 : 0);
+      entry.idleAction.setEffectiveWeight(moving ? 0 : 1);
+    }
+  }
 
   // Animations décor
   const t = clock.elapsedTime;
