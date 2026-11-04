@@ -171,7 +171,9 @@ async function readAssetConfig() {
         const scale = Number(config.character.scale) || 1;
         model.scale.setScalar(scale);
         model.position.y = Number(config.character.yOffset) || 0;
-        hero.add(model);\n        playableCharacter = model;\n        applyExternalAnimations();
+        hero.add(model);
+        playableCharacter = model;
+        applyExternalAnimations();
         body.visible = head.visible = hair.visible = false;
         if (gltf.animations.length) {
           const mixer = new THREE.AnimationMixer(model);
@@ -226,7 +228,8 @@ function usePortal() {
   scene.background.setHex(d.fog);
   scene.fog.color.setHex(d.fog);
   crystalMat.color.setHex(d.glow);
-  crystalMat.emissive.setHex(d.glow);\n  buildBiome(dimensionIndex);
+  crystalMat.emissive.setHex(d.glow);
+  buildBiome(dimensionIndex);
   hero.position.set(0, 0, 0);
   vy = 0; grounded = true;
   nearPortal = false;
@@ -291,7 +294,8 @@ function update(dt) {
   // Animations décor
   const t = clock.elapsedTime;
   ring.rotation.z = t * 0.6;
-  disc.material.opacity = 0.25 + Math.sin(t * 3) * 0.1;\n  portalLight.intensity = 22 + Math.sin(t * 3) * 5;
+  disc.material.opacity = 0.25 + Math.sin(t * 3) * 0.1;
+  portalLight.intensity = 22 + Math.sin(t * 3) * 5;
   crystals.forEach((c, i) => { c.material.emissiveIntensity = 0.4 + Math.sin(t * 2 + i) * 0.2; });
 
   // Entrée dans le portail
