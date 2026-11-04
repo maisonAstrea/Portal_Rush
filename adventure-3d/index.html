@@ -131,18 +131,47 @@ scene.add(hero);
 const assetLoader = new GLTFLoader();
 const mixers = [];
 const loadedScenery = [];
+let animationLibraryClips = [];
+let playableCharacter = null;
+function applyExternalAnimations() {
+  if (!playableCharacter || !animationLibraryClips.length) return;
+  const characterBones = new Set();
+  playableCharacter.traverse(object => { if (object.isBone) characterBones.add(object.name); });
+  const compatible = animationLibraryClips.filter(clip =>
+    clip.tracks.length && clip.tracks.every(track => characterBones.has(track.name.split(".")[0]))
+  );
+  if (!compatible.length) {
+    console.warn("Animations chargées mais non appliquées : noms d'os incompatibles. Retargeting nécessaire.");
+    return;
+  }
+  const mixer = new THREE.AnimationMixer(playableCharacter);
+  const idle = compatible.find(c => /idle|stand/i.test(c.name)) || compatible[0];
+  const walk = compatible.find(c => /walk|run/i.test(c.name));
+  const idleAction = mixer.clipAction(idle);
+  idleAction.play();
+  const walkAction = walk && walk !== idle ? mixer.clipAction(walk) : null;
+  if (walkAction) { walkAction.play(); walkAction.setEffectiveWeight(0); }
+  mixers.push({ mixer, idleAction, walkAction });
+}
 async function readAssetConfig() {
   try {
     const response = await fetch("./assets.json", { cache: "no-cache" });
     if (!response.ok) return;
     const config = await response.json();
+    if (config.animationLibrary?.path) {
+      assetLoader.load(config.animationLibrary.path, gltf => {
+        animationLibraryClips = gltf.animations || [];
+        console.info("Animations disponibles :", animationLibraryClips.map(clip => clip.name));
+        applyExternalAnimations();
+      }, undefined, error => console.warn("Bibliothèque d'animations non chargée :", error));
+    }
     if (config.character && config.character.path) {
       assetLoader.load(config.character.path, gltf => {
         const model = gltf.scene;
         const scale = Number(config.character.scale) || 1;
         model.scale.setScalar(scale);
         model.position.y = Number(config.character.yOffset) || 0;
-        hero.add(model);
+        hero.add(model);\n        playableCharacter = model;\n        applyExternalAnimations();
         body.visible = head.visible = hair.visible = false;
         if (gltf.animations.length) {
           const mixer = new THREE.AnimationMixer(model);
