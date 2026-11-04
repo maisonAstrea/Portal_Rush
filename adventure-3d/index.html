@@ -13,6 +13,7 @@
 </head>
 <body>
 <div id="hud">Portal Rush 3D · prototype<br><small>ZQSD / WASD ou flèches : marcher · Espace : sauter · approche le portail</small></div>
+<div id="world" style="position:fixed;right:14px;top:14px;color:#d9ffe8;background:#07140fcc;padding:10px 14px;border:1px solid #39ff8a77;border-radius:12px;z-index:2">Dimension : <strong id="worldName">Portail Central</strong><br><small>Approche le portail et appuie sur E</small></div>
 <div id="msg"></div>
 <script type="importmap">
 { "imports": { "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js" } }
@@ -93,7 +94,30 @@ scene.add(hero);
 
 // ---------- Contrôles ----------
 const keys = {};
-addEventListener("keydown", e => { keys[e.code] = true; if (e.code === "Space") jump(); });
+let nearPortal = false, dimensionIndex = -1;
+const dimensions = [
+  { name:"Dimension Toxique", ground:0x315b2b, fog:0x173622, glow:0x87ff49 },
+  { name:"Forêt Cristalline", ground:0x253b52, fog:0x101d35, glow:0x8c7bff },
+  { name:"Désert Zarbi", ground:0x7b4d32, fog:0x4a241e, glow:0xffa14a },
+  { name:"Glacier Néon", ground:0x2b5e73, fog:0x142e50, glow:0x4cecff }
+];
+function usePortal() {
+  if (!nearPortal) return;
+  dimensionIndex = (dimensionIndex + 1) % dimensions.length;
+  const d = dimensions[dimensionIndex];
+  document.getElementById("worldName").textContent = d.name;
+  ground.material.color.setHex(d.ground);
+  scene.background.setHex(d.fog);
+  scene.fog.color.setHex(d.fog);
+  crystalMat.color.setHex(d.glow);
+  crystalMat.emissive.setHex(d.glow);
+  hero.position.set(0, 0, 0);
+  vy = 0; grounded = true;
+  nearPortal = false;
+  msg.textContent = "Bienvenue : " + d.name;
+  msg.style.opacity = 1; msgT = 3;
+}
+addEventListener("keydown", e => { keys[e.code] = true; if (e.code === "Space") { e.preventDefault(); jump(); } if (e.code === "KeyE") usePortal(); });
 addEventListener("keyup", e => { keys[e.code] = false; });
 
 let vy = 0, grounded = true;
@@ -142,14 +166,15 @@ function update(dt) {
   crystals.forEach((c, i) => { c.material.emissiveIntensity = 0.4 + Math.sin(t * 2 + i) * 0.2; });
 
   // Entrée dans le portail
-  const dist = hero.position.distanceTo(portal.position);
+  const dist = Math.hypot(hero.position.x - portal.position.x, hero.position.z - portal.position.z);
+  nearPortal = dist < 5;
   if (dist < 5) {
-    msg.textContent = "Portail détecté · ici commenceront les dimensions";
+    msg.textContent = "Appuie sur E pour traverser le portail";
     msg.style.opacity = 1; msgT = 2;
   } else if (msgT > 0) {
     msgT -= dt;
     if (msgT <= 0) msg.style.opacity = 0;
-  }
+  } else { msg.style.opacity = 0; }
 }
 
 function frame() {
