@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<title>Portal Rush 3D – prototype</title>
+<style>
+  html, body { margin: 0; height: 100%; overflow: hidden; background: #07060f; font-family: "Trebuchet MS", system-ui, sans-serif; touch-action: none; user-select: none; }
+  canvas { display: block; }
+  #hud { position: fixed; left: 14px; top: calc(12px + env(safe-area-inset-top, 0px)); color: #e8ffe8; text-shadow: 0 0 8px #39ff8a; font-weight: 700; pointer-events: none; }
+  #msg { position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%); color: #39ff8a; font-weight: 700; opacity: 0; transition: opacity .3s; pointer-events: none; }
+</style>
+</head>
+<body>
+<div id="hud">Portal Rush 3D · prototype<br><small>ZQSD / WASD ou flèches : marcher · Espace : sauter · approche le portail</small></div>
+<div id="msg"></div>
+<script type="importmap">
+{ "imports": { "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js" } }
+</script>
+<script type="module">
+import * as THREE from "three";
+
+// ---------- Renderer, scène, caméra ----------
+const renderer = new THREE.WebGLRenderer({ antialias: true });
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+renderer.setSize(window.innerWidth, window.innerHeight);
+document.body.appendChild(renderer.domElement);
+
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x07060f);
+scene.fog = new THREE.Fog(0x07060f, 40, 140);
+
+const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 300);
+
+// Lumières cartoon néon
+scene.add(new THREE.HemisphereLight(0xb6ffd2, 0x1a0b33, 0.9));
+const sun = new THREE.DirectionalLight(0xffffff, 1.1);
+sun.position.set(20, 40, 10);
+scene.add(sun);
+
+// ---------- Sol et décor (placeholders à remplacer par Modular Sci-Fi / Stylized Nature) ----------
+const ground = new THREE.Mesh(
+  new THREE.CircleGeometry(120, 64),
+  new THREE.MeshStandardMaterial({ color: 0x1d3d2a, roughness: 0.9 })
+);
+ground.rotation.x = -Math.PI / 2;
+scene.add(ground);
+
+const crystalMat = new THREE.MeshStandardMaterial({ color: 0x39ff8a, emissive: 0x39ff8a, emissiveIntensity: 0.6, roughness: 0.3 });
+const crystals = [];
+for (let i = 0; i < 40; i++) {
+  const a = Math.random() * Math.PI * 2, d = 12 + Math.random() * 90;
+  const h = 2 + Math.random() * 5;
+  const c = new THREE.Mesh(new THREE.ConeGeometry(0.8 + Math.random(), h, 5), crystalMat);
+  c.position.set(Math.cos(a) * d, h / 2, Math.sin(a) * d);
+  scene.add(c);
+  crystals.push(c);
+}
+
+// ---------- Portail animé ----------
+const portal = new THREE.Group();
+const ring = new THREE.Mesh(
+  new THREE.TorusGeometry(4, 0.4, 16, 64),
+  new THREE.MeshStandardMaterial({ color: 0x39ff8a, emissive: 0x39ff8a, emissiveIntensity: 1.2 })
+);
+const disc = new THREE.Mesh(
+  new THREE.CircleGeometry(3.6, 48),
+  new THREE.MeshBasicMaterial({ color: 0x66ffb0, transparent: true, opacity: 0.35, side: THREE.DoubleSide })
+);
+portal.add(ring, disc);
+portal.position.set(0, 4.5, -30);
+scene.add(portal);
+
+// ---------- Personnage placeholder (à remplacer par Universal Base Characters) ----------
+const hero = new THREE.Group();
+const body = new THREE.Mesh(
+  new THREE.CapsuleGeometry(0.6, 1.0, 6, 12),
+  new THREE.MeshStandardMaterial({ color: 0xf4f7ff, roughness: 0.5 })
+);
+body.position.y = 1.1;
+const head = new THREE.Mesh(
+  new THREE.SphereGeometry(0.55, 24, 16),
+  new THREE.MeshStandardMaterial({ color: 0xf1d1a8, roughness: 0.6 })
+);
+head.position.y = 2.2;
+const hair = new THREE.Mesh(
+  new THREE.SphereGeometry(0.6, 24, 16, 0, Math.PI * 2, 0, Math.PI / 2),
+  new THREE.MeshStandardMaterial({ color: 0x9fe8ff, emissive: 0x9fe8ff, emissiveIntensity: 0.3 })
+);
+hair.position.y = 2.3;
+hero.add(body, head, hair);
+scene.add(hero);
+
+// ---------- Contrôles ----------
+const keys = {};
+addEventListener("keydown", e => { keys[e.code] = true; if (e.code === "Space") jump(); });
+addEventListener("keyup", e => { keys[e.code] = false; });
+
+let vy = 0, grounded = true;
+function jump() { if (grounded) { vy = 8; grounded = false; } }
+
+// ---------- Boucle ----------
+const clock = new THREE.Clock();
+const speed = 9;
+const msg = document.getElementById("msg");
+let msgT = 0;
+const camOffset = new THREE.Vector3(0, 4.5, 9);
+const camTarget = new THREE.Vector3();
+
+function update(dt) {
+  let mx = 0, mz = 0;
+  if (keys.KeyW || keys.ArrowUp) mz -= 1;
+  if (keys.KeyS || keys.ArrowDown) mz += 1;
+  if (keys.KeyA || keys.ArrowLeft) mx -= 1;
+  if (keys.KeyD || keys.ArrowRight) mx += 1;
+  const len = Math.hypot(mx, mz);
+  if (len > 0) {
+    mx /= len; mz /= len;
+    hero.position.x += mx * speed * dt;
+    hero.position.z += mz * speed * dt;
+    hero.rotation.y = Math.atan2(mx, mz);
+  }
+
+  // Gravité simple
+  vy -= 22 * dt;
+  hero.position.y += vy * dt;
+  if (hero.position.y <= 0) { hero.position.y = 0; vy = 0; grounded = true; }
+
+  // Limite du monde
+  hero.position.x = THREE.MathUtils.clamp(hero.position.x, -110, 110);
+  hero.position.z = THREE.MathUtils.clamp(hero.position.z, -110, 110);
+
+  // Caméra qui suit le personnage
+  camTarget.copy(hero.position).add(camOffset);
+  camera.position.lerp(camTarget, 1 - Math.pow(0.001, dt));
+  camera.lookAt(hero.position.x, hero.position.y + 1.5, hero.position.z);
+
+  // Animations décor
+  const t = clock.elapsedTime;
+  ring.rotation.z = t * 0.6;
+  disc.material.opacity = 0.25 + Math.sin(t * 3) * 0.1;
+  crystals.forEach((c, i) => { c.material.emissiveIntensity = 0.4 + Math.sin(t * 2 + i) * 0.2; });
+
+  // Entrée dans le portail
+  const dist = hero.position.distanceTo(portal.position);
+  if (dist < 5) {
+    msg.textContent = "Portail détecté · ici commenceront les dimensions";
+    msg.style.opacity = 1; msgT = 2;
+  } else if (msgT > 0) {
+    msgT -= dt;
+    if (msgT <= 0) msg.style.opacity = 0;
+  }
+}
+
+function frame() {
+  const dt = Math.min(clock.getDelta(), 0.05);
+  update(dt);
+  renderer.render(scene, camera);
+  requestAnimationFrame(frame);
+}
+
+addEventListener("resize", () => {
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(window.innerWidth, window.innerHeight);
+});
+
+camera.position.set(0, 5, 10);
+frame();
+</script>
+</body>
+</html>
