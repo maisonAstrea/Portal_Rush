@@ -4,5 +4,8 @@
     "scale": 1,
     "yOffset": 0
   },
-  "scenery": []
+  "scenery": [],
+  "animationLibrary": {
+    "path": "../annimation/Universal Animation Library[Standard]/Unreal-Godot/UAL1_Standard.glb"
+  }
 }
