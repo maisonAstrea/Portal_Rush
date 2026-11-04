@@ -9,12 +9,12 @@
   canvas { display: block; }
   #hud { position: fixed; left: 14px; top: calc(12px + env(safe-area-inset-top, 0px)); color: #e8ffe8; text-shadow: 0 0 8px #39ff8a; font-weight: 700; pointer-events: none; }
   #msg { position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%); color: #39ff8a; font-weight: 700; opacity: 0; transition: opacity .3s; pointer-events: none; }
-</style>
+#assetStatus{position:fixed;left:12px;bottom:12px;z-index:5;background:#06150de8;color:#dfffea;padding:12px;border:1px solid #39ff8a77;border-radius:12px;font:12px/1.5 system-ui;white-space:pre-line;pointer-events:none}</style>
 </head>
 <body>
 <div id="hud">Portal Rush 3D · prototype<br><small>ZQSD / WASD ou flèches : marcher · Espace : sauter · approche le portail</small></div>
 <div id="world" style="position:fixed;right:14px;top:14px;color:#d9ffe8;background:#07140fcc;padding:10px 14px;border:1px solid #39ff8a77;border-radius:12px;z-index:2">Dimension : <strong id="worldName">Portail Central</strong><br><small>Approche le portail et appuie sur E</small></div>
-<div id="msg"></div>
+<div id="msg"></div><div id="assetStatus">Vérification des modèles 3D…</div>
 <script type="importmap">
 { "imports": { "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js", "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/" } }
 </script>
@@ -131,6 +131,9 @@ scene.add(hero);
 const assetLoader = new GLTFLoader();
 const mixers = [];
 const loadedScenery = [];
+const status = { character:"chargement", animations:"chargement", compatibility:"en attente" };
+function refreshStatus(){document.getElementById("assetStatus").textContent="Personnage : "+status.character+"\nBibliothèque : "+status.animations+"\nAnimation : "+status.compatibility;}
+refreshStatus();
 let animationLibraryClips = [];
 let playableCharacter = null;
 function applyExternalAnimations() {
@@ -141,6 +144,7 @@ function applyExternalAnimations() {
     clip.tracks.length && clip.tracks.every(track => characterBones.has(track.name.split(".")[0]))
   );
   if (!compatible.length) {
+    status.compatibility="squelettes incompatibles : adaptation nécessaire";refreshStatus();
     console.warn("Animations chargées mais non appliquées : noms d'os incompatibles. Retargeting nécessaire.");
     return;
   }
@@ -152,6 +156,7 @@ function applyExternalAnimations() {
   const walkAction = walk && walk !== idle ? mixer.clipAction(walk) : null;
   if (walkAction) { walkAction.play(); walkAction.setEffectiveWeight(0); }
   mixers.push({ mixer, idleAction, walkAction });
+  status.compatibility=compatible.length+" animation(s) compatibles"+(walk?" (marche trouvée)":" (marche absente)");refreshStatus();
 }
 async function readAssetConfig() {
   try {
@@ -161,9 +166,10 @@ async function readAssetConfig() {
     if (config.animationLibrary?.path) {
       assetLoader.load(config.animationLibrary.path, gltf => {
         animationLibraryClips = gltf.animations || [];
+        status.animations=animationLibraryClips.length+" clips chargés";refreshStatus();
         console.info("Animations disponibles :", animationLibraryClips.map(clip => clip.name));
         applyExternalAnimations();
-      }, undefined, error => console.warn("Bibliothèque d'animations non chargée :", error));
+      }, undefined, error => {status.animations="échec";refreshStatus();console.warn("Bibliothèque d'animations non chargée :", error);});
     }
     if (config.character && config.character.path) {
       assetLoader.load(config.character.path, gltf => {
@@ -172,6 +178,7 @@ async function readAssetConfig() {
         model.scale.setScalar(scale);
         model.position.y = Number(config.character.yOffset) || 0;
         hero.add(model);
+        status.character="modèle chargé";refreshStatus();
         playableCharacter = model;
         applyExternalAnimations();
         body.visible = head.visible = hair.visible = false;
@@ -186,7 +193,7 @@ async function readAssetConfig() {
           if (walkAction) walkAction.play();
           mixers.push({ mixer, idleAction, walkAction });
         }
-      }, undefined, error => console.warn("Personnage 3D non chargé :", error));
+      }, undefined, error => {status.character="échec (personnage provisoire)";refreshStatus();console.warn("Personnage 3D non chargé :", error);});
     }
     if (Array.isArray(config.scenery)) {
       for (const item of config.scenery) {
@@ -206,7 +213,7 @@ async function readAssetConfig() {
         }, undefined, error => console.warn("Décor 3D non chargé :", item.path, error));
       }
     }
-  } catch (error) { console.warn("Configuration 3D indisponible :", error); }
+  } catch (error) {status.character="configuration inaccessible";status.animations="configuration inaccessible";refreshStatus();console.warn("Configuration 3D indisponible :", error); }
 }
 readAssetConfig();
 
